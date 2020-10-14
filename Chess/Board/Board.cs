@@ -14,5 +14,10 @@
         public Piece Piece(int row, int column) {
             return Pieces[row, column];
         }
+
+        public void PutPiece(Piece pc, Position pos) {
+            Pieces[pos.Row, pos.Column] = pc;
+            pc.Position = pos;
+        }
     }
 }
