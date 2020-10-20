@@ -1,6 +1,6 @@
 ﻿using Board;
 
-namespace Chess.Chess {
+namespace Chess {
     class ChessPosition {
 
         public char Column { get; set; }

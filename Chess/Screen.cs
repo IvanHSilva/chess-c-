@@ -21,6 +21,13 @@ namespace Chess {
             Console.WriteLine("  A B C D E F G H");
         }
 
+        public static ChessPosition ReadPosition() {
+            string coord = Console.ReadLine().ToUpper();
+            char column = coord[0];
+            int row = int.Parse(coord[1] + "");
+            return new ChessPosition(column, row);
+        }
+
         public static void PrintPiece(Piece piece) {
             if (piece.Color == Color.White) {
                 Console.Write(piece);

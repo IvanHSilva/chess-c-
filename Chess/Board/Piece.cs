@@ -12,5 +12,9 @@
             Board = board;
             TotalMoves = 0;
         }
+
+        public void IncrementMoves() {
+            TotalMoves++;
+        }
     }
 }
