@@ -1,12 +1,13 @@
 ﻿using Board;
+using Chess.Board;
 using System;
 
 namespace Chess {
     class ChessMatch {
 
         public ChessBoard Board { get; private set; }
-        private int Turn;
-        private Color Player;
+        public int Turn { get; private set; }
+        public Color Player { get; private set; }
         public bool Ended { get; private set; }
 
         public ChessMatch() {
@@ -24,7 +25,39 @@ namespace Chess {
             Board.PutPiece(piece, destiny);
         }
 
-        private  void PutPieces() {
+        public void MakePlay(Position origin, Position destiny) {
+            MakeMove(origin, destiny);
+            Turn++;
+            ChangePlayer();
+        }
+
+        private void ChangePlayer() {
+            if (Player == Color.White) {
+                Player = Color.Black;
+            } else {
+                Player = Color.White;
+            }
+        }
+
+        public void ValidOriginPosition(Position pos) {
+            if (Board.Piece(pos) == null) {
+                throw new BoardException("Não existe peça na origem selecionada!");
+            }
+            if (Player !=  Board.Piece(pos).Color) {
+                throw new BoardException("A peça selecionada não é sua!");
+            }
+            if (!Board.Piece(pos).ExistsPossibleMoves()) {
+                throw new BoardException("Não existem movimentos possíveis para a peça selecionada!");
+            }
+        }
+
+        public void ValidDestinyPosition(Position origin, Position destiny) {
+            if (!Board.Piece(origin).CanMoveTo(destiny)) {
+                throw new BoardException("Destino inválido!");
+            }
+        }
+
+        private void PutPieces() {
             Board.PutPiece(new Rook(Board, Color.White), new ChessPosition('C', 1).ConvertPosition());
             Board.PutPiece(new Rook(Board, Color.White), new ChessPosition('C', 2).ConvertPosition());
             Board.PutPiece(new Rook(Board, Color.White), new ChessPosition('D', 2).ConvertPosition());
