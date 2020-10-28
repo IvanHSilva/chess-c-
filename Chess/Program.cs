@@ -12,10 +12,7 @@ namespace Chess {
                 while (!Match.Ended) {
                     try {
                         Console.Clear();
-                        Screen.PrintBoard(Match.Board);
-                        Console.WriteLine();
-                        Console.WriteLine("Turno: " + Match.Turn);
-                        Console.WriteLine("Aguardando: " + (Match.Player == Color.White ? "Branca" : "Preta"));
+                        Screen.PrintMatch(Match);
 
                         Console.WriteLine();
                         Console.Write("Origem: ");
