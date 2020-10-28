@@ -17,6 +17,10 @@
             TotalMoves++;
         }
 
+        public void DecrementMoves() {
+            TotalMoves--;
+        }
+
         public bool ExistsPossibleMoves() {
             bool[,] matrix = PossibleMoves();
             for (int i = 0; i < Board.Rows; i++) {

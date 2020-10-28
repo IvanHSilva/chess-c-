@@ -12,6 +12,7 @@ namespace Chess {
         public bool Ended { get; private set; }
         private HashSet<Piece> Pieces;
         private HashSet<Piece> Captured;
+        public bool Check { get; private set; }
 
         public ChessMatch() {
             Board = new ChessBoard(8, 8);
@@ -21,9 +22,10 @@ namespace Chess {
             Captured = new HashSet<Piece>();
             PutPieces();
             Ended = false;
+            Check = false;
         }
 
-        public void MakeMove(Position origin, Position destiny) {
+        public Piece MakeMove(Position origin, Position destiny) {
             Piece piece = Board.RemovePiece(origin);
             piece.IncrementMoves();
             Piece capturedPiece = Board.RemovePiece(destiny);
@@ -31,10 +33,30 @@ namespace Chess {
             if (capturedPiece != null) {
                 Captured.Add(capturedPiece);
             }
+            return capturedPiece;
+        }
+
+        public void UndoMove(Position origin, Position destiny, Piece capturedPiece) {
+            Piece piece = Board.RemovePiece(destiny);
+            piece.DecrementMoves();
+            if (capturedPiece != null) {
+                Board.PutPiece(capturedPiece, destiny);
+                Captured.Remove(capturedPiece);
+            }
+            Board.PutPiece(piece, origin);
         }
 
         public void MakePlay(Position origin, Position destiny) {
-            MakeMove(origin, destiny);
+            Piece capturedPiece = MakeMove(origin, destiny);
+            if (IsChecked(Player)) {
+                UndoMove(origin, destiny, capturedPiece);
+                throw new BoardException("Você não pode se colocar em xeque!");
+            }
+            if (IsChecked(Adversary(Player))) {
+                Check = true;
+            } else {
+                Check = false;
+            }
             Turn++;
             ChangePlayer();
         }
@@ -77,13 +99,44 @@ namespace Chess {
 
         public HashSet<Piece> GamePieces(Color color) {
             HashSet<Piece> aux = new HashSet<Piece>();
-            foreach (Piece x in Captured) {
+            foreach (Piece x in Pieces) {
                 if (x.Color == color) {
                     aux.Add(x);
                 }
             }
             aux.ExceptWith(CapturedPieces(color));
             return aux;
+        }
+
+        private Color Adversary(Color color) {
+            if (color == Color.White) {
+                return Color.Black;
+            } else {
+                return Color.White;
+            }
+        }
+
+        private Piece IsKing(Color color) {
+            foreach (Piece p in GamePieces(color)) {
+                if (p is King) {
+                    return p;
+                }
+            }
+            return null;
+        }
+
+        public bool IsChecked(Color color) {
+            Piece K = IsKing(color);
+            if (K == null) {
+                throw new BoardException("Não há rei da cor " + (color == Color.White ? "preta" : "branca") + " no tabuleiro!");
+            }
+            foreach(Piece x in GamePieces(Adversary(color))) {
+                bool[,] matrix = x.PossibleMoves();
+                if (matrix[K.Position.Row, K.Position.Column]) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void PutNewPiece(char column, int row, Piece piece) {

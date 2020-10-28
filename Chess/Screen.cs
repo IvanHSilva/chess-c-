@@ -12,6 +12,9 @@ namespace Chess {
             Console.WriteLine();
             Console.WriteLine("Turno: " + match.Turn);
             Console.WriteLine("Aguardando: " + (match.Player == Color.White ? "Branca" : "Preta"));
+            if (match.Check) {
+                Console.WriteLine("XEQUE!");
+            }
         }
 
         public static void PrintCapturedPieces(ChessMatch match) {
