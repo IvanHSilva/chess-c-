@@ -1,5 +1,4 @@
 ﻿using Board;
-using System;
 
 namespace Chess {
     class Queen : Piece {
@@ -26,7 +25,7 @@ namespace Chess {
                 if (Board.Piece(pos) !=null && Board.Piece(pos).Color != Color) {
                     break;
                 }
-                pos.Row--;
+                pos.SetValues(pos.Row - 1, pos.Column);
             }
 
             //Down position (S)
@@ -36,7 +35,7 @@ namespace Chess {
                 if (Board.Piece(pos) != null && Board.Piece(pos).Color != Color) {
                     break;
                 }
-                pos.Row++;
+                pos.SetValues(pos.Row + 1, pos.Column);
             }
 
             //Right position (E)
@@ -46,7 +45,7 @@ namespace Chess {
                 if (Board.Piece(pos) != null && Board.Piece(pos).Color != Color) {
                     break;
                 }
-                pos.Column++;
+                pos.SetValues(pos.Row, pos.Column + 1);
             }
 
             //Left position
@@ -56,7 +55,7 @@ namespace Chess {
                 if (Board.Piece(pos) != null && Board.Piece(pos).Color != Color) {
                     break;
                 }
-                pos.Column--;
+                pos.SetValues(pos.Row, pos.Column - 1);
             }
 
             //Up-left position (NW)

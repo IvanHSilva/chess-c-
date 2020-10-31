@@ -1,6 +1,5 @@
 ﻿using Board;
 using Chess.Board;
-using System;
 using System.Collections.Generic;
 
 namespace Chess {
@@ -26,24 +25,58 @@ namespace Chess {
         }
 
         public Piece MakeMove(Position origin, Position destiny) {
-            Piece piece = Board.RemovePiece(origin);
-            piece.IncrementMoves();
+            Piece p = Board.RemovePiece(origin);
+            p.IncrementMoves();
             Piece capturedPiece = Board.RemovePiece(destiny);
-            Board.PutPiece(piece, destiny);
+            Board.PutPiece(p, destiny);
             if (capturedPiece != null) {
                 Captured.Add(capturedPiece);
             }
+            //Little Roque
+            if (p is King && destiny.Column == origin.Column + 2) {
+                Position rookOrigin = new Position(origin.Row, origin.Column + 3);
+                Position rookDestiny = new Position(origin.Row, origin.Column + 1);
+                Piece R = Board.RemovePiece(rookOrigin);
+                R.IncrementMoves();
+                Board.PutPiece(R, rookDestiny);
+            }
+            //Big Roque
+            if (p is King && destiny.Column == origin.Column - 2) {
+                Position rookOrigin = new Position(origin.Row, origin.Column - 4);
+                Position rookDestiny = new Position(origin.Row, origin.Column - 1);
+                Piece R = Board.RemovePiece(rookOrigin);
+                R.IncrementMoves();
+                Board.PutPiece(R, rookDestiny);
+            }
+
             return capturedPiece;
         }
 
         public void UndoMove(Position origin, Position destiny, Piece capturedPiece) {
-            Piece piece = Board.RemovePiece(destiny);
-            piece.DecrementMoves();
+            Piece p = Board.RemovePiece(destiny);
+            p.DecrementMoves();
             if (capturedPiece != null) {
                 Board.PutPiece(capturedPiece, destiny);
                 Captured.Remove(capturedPiece);
             }
-            Board.PutPiece(piece, origin);
+            Board.PutPiece(p, origin);
+
+            //Little Roque
+            if (p is King && destiny.Column == origin.Column + 2) {
+                Position rookOrigin = new Position(origin.Row, origin.Column + 3);
+                Position rookDestiny = new Position(origin.Row, origin.Column + 1);
+                Piece R = Board.RemovePiece(rookDestiny);
+                R.DecrementMoves();
+                Board.PutPiece(R, rookOrigin);
+            }
+            //Big Roque
+            if (p is King && destiny.Column == origin.Column - 2) {
+                Position rookOrigin = new Position(origin.Row, origin.Column - 4);
+                Position rookDestiny = new Position(origin.Row, origin.Column - 1);
+                Piece R = Board.RemovePiece(rookDestiny);
+                R.DecrementMoves();
+                Board.PutPiece(R, rookOrigin);
+            }
         }
 
         public void MakePlay(Position origin, Position destiny) {
@@ -93,9 +126,9 @@ namespace Chess {
 
         public HashSet<Piece> CapturedPieces(Color color) {
             HashSet<Piece> aux = new HashSet<Piece>();
-            foreach (Piece x in Captured) {
-                if (x.Color == color) {
-                    aux.Add(x);
+            foreach (Piece p in Captured) {
+                if (p.Color == color) {
+                    aux.Add(p);
                 }
             }
             return aux;
@@ -103,37 +136,13 @@ namespace Chess {
 
         public HashSet<Piece> GamePieces(Color color) {
             HashSet<Piece> aux = new HashSet<Piece>();
-            foreach (Piece x in Pieces) {
-                if (x.Color == color) {
-                    aux.Add(x);
+            foreach (Piece p in Pieces) {
+                if (p.Color == color) {
+                    aux.Add(p);
                 }
             }
             aux.ExceptWith(CapturedPieces(color));
             return aux;
-        }
-
-        public bool TestCheckMate(Color color) {
-            if (!IsChecked(color)) {
-                return false;
-            }
-            foreach(Piece p in GamePieces(color)) {
-                bool[,] matrix = p.PossibleMoves();
-                for (int i = 0; i < Board.Rows; i++) {
-                    for (int j = 0; j < Board.Columns; j++) {
-                        if (matrix[i, j]) {
-                            Position origin = p.Position;
-                            Position destiny = new Position(i, j);
-                            Piece caputeredPiece = MakeMove(origin, destiny);
-                            bool testCheck = IsChecked(color);
-                            UndoMove(origin, destiny, caputeredPiece);
-                            if (!testCheck) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
         }
 
         private Color Adversary(Color color) {
@@ -158,13 +167,37 @@ namespace Chess {
             if (K == null) {
                 throw new BoardException("Não há rei da cor " + (color == Color.White ? "preta" : "branca") + " no tabuleiro!");
             }
-            foreach(Piece x in GamePieces(Adversary(color))) {
-                bool[,] matrix = x.PossibleMoves();
+            foreach(Piece p in GamePieces(Adversary(color))) {
+                bool[,] matrix = p.PossibleMoves();
                 if (matrix[K.Position.Row, K.Position.Column]) {
                     return true;
                 }
             }
             return false;
+        }
+
+        public bool TestCheckMate(Color color) {
+            if (!IsChecked(color)) {
+                return false;
+            }
+            foreach (Piece p in GamePieces(color)) {
+                bool[,] matrix = p.PossibleMoves();
+                for (int i = 0; i < Board.Rows; i++) {
+                    for (int j = 0; j < Board.Columns; j++) {
+                        if (matrix[i, j]) {
+                            Position origin = p.Position;
+                            Position destiny = new Position(i, j);
+                            Piece capturedPiece = MakeMove(origin, destiny);
+                            bool testCheck = IsChecked(color);
+                            UndoMove(origin, destiny, capturedPiece);
+                            if (!testCheck) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
         }
 
         public void PutNewPiece(char column, int row, Piece piece) {
@@ -177,7 +210,7 @@ namespace Chess {
             PutNewPiece('B', 1, new Knight(Board, Color.White));
             PutNewPiece('C', 1, new Bishop(Board, Color.White));
             PutNewPiece('D', 1, new Queen(Board, Color.White));
-            PutNewPiece('E', 1, new King(Board, Color.White));
+            PutNewPiece('E', 1, new King(Board, Color.White, this));
             PutNewPiece('F', 1, new Bishop(Board, Color.White));
             PutNewPiece('G', 1, new Knight(Board, Color.White));
             PutNewPiece('H', 1, new Rook(Board, Color.White));
@@ -195,7 +228,7 @@ namespace Chess {
             PutNewPiece('B', 8, new Knight(Board, Color.Black));
             PutNewPiece('C', 8, new Bishop(Board, Color.Black));
             PutNewPiece('D', 8, new Queen(Board, Color.Black));
-            PutNewPiece('E', 8, new King(Board, Color.Black));
+            PutNewPiece('E', 8, new King(Board, Color.Black, this));
             PutNewPiece('F', 8, new Bishop(Board, Color.Black));
             PutNewPiece('G', 8, new Knight(Board, Color.Black));
             PutNewPiece('H', 8, new Rook(Board, Color.Black));

@@ -1,5 +1,4 @@
 ﻿using Board;
-using System;
 
 namespace Chess {
     class Pawn : Piece {
@@ -29,7 +28,8 @@ namespace Chess {
                     matrix[pos.Row, pos.Column] = true;
                 }
                 pos.SetValues(Position.Row - 2, Position.Column);
-                if (Board.ValidPosition(pos) && Free(pos) && TotalMoves == 0) {
+                Position pos2 = new Position(Position.Row - 1, Position.Column);
+                if (Board.ValidPosition(pos2) && Free(pos2) && Board.ValidPosition(pos) && Free(pos) && TotalMoves == 0) {
                     matrix[pos.Row, pos.Column] = true;
                 }
                 pos.SetValues(Position.Row - 1, Position.Column - 1);
@@ -46,7 +46,8 @@ namespace Chess {
                     matrix[pos.Row, pos.Column] = true;
                 }
                 pos.SetValues(Position.Row + 2, Position.Column);
-                if (Board.ValidPosition(pos) && Free(pos) && TotalMoves == 0) {
+                Position pos2 = new Position(Position.Row + 1, Position.Column);
+                if (Board.ValidPosition(pos2) && Free(pos2) && Board.ValidPosition(pos) && Free(pos) && TotalMoves == 0) {
                     matrix[pos.Row, pos.Column] = true;
                 }
                 pos.SetValues(Position.Row + 1, Position.Column - 1);

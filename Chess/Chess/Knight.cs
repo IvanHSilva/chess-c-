@@ -1,5 +1,4 @@
 ﻿using Board;
-using System;
 
 namespace Chess {
     class Knight : Piece {
