@@ -11,9 +11,14 @@ namespace Chess {
             PrintCapturedPieces(match);
             Console.WriteLine();
             Console.WriteLine("Turno: " + match.Turn);
-            Console.WriteLine("Aguardando: " + (match.Player == Color.White ? "Branca" : "Preta"));
-            if (match.Check) {
-                Console.WriteLine("XEQUE!");
+            if (!match.Ended) {
+                Console.WriteLine("Aguardando: " + (match.Player == Color.White ? "Branca" : "Preta"));
+                if (match.Check) {
+                    Console.WriteLine("XEQUE!");
+                }
+            } else {
+                Console.WriteLine("XEQUE-MATE!");
+                Console.WriteLine("Vecedor: " + (match.Player == Color.White ? "Branca" : "Preta"));
             }
         }
 
