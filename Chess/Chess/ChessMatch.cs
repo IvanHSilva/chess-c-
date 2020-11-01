@@ -113,18 +113,34 @@ namespace Chess {
                 UndoMove(origin, destiny, capturedPiece);
                 throw new BoardException("Você não pode se colocar em xeque!");
             }
+
+            Piece p = Board.Piece(destiny);
+            
             if (IsChecked(Adversary(Player))) {
                 Check = true;
             } else {
                 Check = false;
             }
+
+            //Promotion
+            if (p is Pawn) {
+                if ((p.Color == Color.White && destiny.Row == 0) || (p.Color == Color.Black && destiny.Row == 7)) {
+                    p = Board.RemovePiece(destiny);
+                    Pieces.Remove(p);
+                    Piece queen = new Queen(Board, p.Color);
+                    Board.PutPiece(queen, destiny);
+                    Pieces.Add(queen);
+                }
+            }
+
+
             if (TestCheckMate(Adversary(Player))) {
                 Ended = true;
             } else {
                 Turn++;
                 ChangePlayer();
             }
-            Piece p = Board.Piece(destiny);
+
             //En Passant
             if (p is Pawn && (destiny.Row == origin.Row - 2 || destiny.Row == origin.Row + 2)) {
                 vulnerableEnPassant = p;
