@@ -18,7 +18,7 @@ namespace Chess {
             return piece == null || piece.Color != Color;
         }
 
-        private bool RoqueRook(Position pos) {
+        private bool CastleRook(Position pos) {
             Piece p = Board.Piece(pos);
             return p != null && p is Rook && p.Color == Color && p.TotalMoves == 0;
         }
@@ -76,18 +76,18 @@ namespace Chess {
             }
 
             if (TotalMoves == 0 && !match.Check) {
-                //Little Roque
+                //Little Castle
                 Position posRook1 = new Position(Position.Row, Position.Column + 3);
-                if (RoqueRook(posRook1)) {
+                if (CastleRook(posRook1)) {
                     Position p1 = new Position(Position.Row, Position.Column + 1);
                     Position p2 = new Position(Position.Row, Position.Column + 2);
                     if (Board.Piece(p1) == null && Board.Piece(p2) == null) {
                         matrix[Position.Row, Position.Column + 2] = true;
                     }
                 }
-                //Big Roque
+                //Big Castle
                 Position posRook2 = new Position(Position.Row, Position.Column - 4);
-                if (RoqueRook(posRook2)) {
+                if (CastleRook(posRook2)) {
                     Position p1 = new Position(Position.Row, Position.Column - 1);
                     Position p2 = new Position(Position.Row, Position.Column - 2);
                     Position p3 = new Position(Position.Row, Position.Column - 3);
